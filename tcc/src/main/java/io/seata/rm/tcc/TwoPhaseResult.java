@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,13 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.tcc;
 
 import io.seata.common.util.StringUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * the TCC method result
@@ -31,12 +27,12 @@ public class TwoPhaseResult {
     /**
      * is Success ?
      */
-    private boolean             isSuccess = false;
+    private boolean isSuccess;
 
     /**
      * result message
      */
-    private String              message;
+    private String message;
 
     /**
      * Instantiates a new Two phase result.
@@ -90,7 +86,7 @@ public class TwoPhaseResult {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         sb.append("isSuccess:").append(isSuccess);
-        if(StringUtils.isNotBlank(message)){
+        if (StringUtils.isNotBlank(message)) {
             sb.append(", msg").append(message);
         }
         sb.append("]");

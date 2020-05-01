@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,20 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol.transaction;
 
-import io.seata.core.protocol.AbstractMessage;
+import io.seata.core.protocol.MessageType;
 
 /**
  * The type Branch rollback response.
  *
- * @author jimin.jm @alibaba-inc.com
+ * @author slievrly
  */
 public class BranchRollbackResponse extends AbstractBranchEndResponse {
 
     @Override
     public short getTypeCode() {
-        return AbstractMessage.TYPE_BRANCH_ROLLBACK_RESULT;
+        return MessageType.TYPE_BRANCH_ROLLBACK_RESULT;
     }
 }

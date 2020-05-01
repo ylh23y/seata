@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.discovery.registry;
 
 import io.seata.common.exception.NotSupportYetException;
@@ -21,8 +20,7 @@ import io.seata.common.exception.NotSupportYetException;
 /**
  * The enum Registry type.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2019 /02/26
+ * @author slievrly
  */
 public enum RegistryType {
     /**
@@ -48,7 +46,19 @@ public enum RegistryType {
     /**
      * Consul registry type
      */
-    Consul;
+    Consul,
+    /**
+     * Etcd3 registry type
+     */
+    Etcd3,
+    /**
+     * Sofa registry type
+     */
+    Sofa,
+    /**
+     * Sofa registry type
+     */
+    Custom;
 
     /**
      * Gets type.
@@ -57,20 +67,11 @@ public enum RegistryType {
      * @return the type
      */
     public static RegistryType getType(String name) {
-        if (File.name().equalsIgnoreCase(name)) {
-            return File;
-        } else if (Nacos.name().equalsIgnoreCase(name)) {
-            return Nacos;
-        } else if (Redis.name().equalsIgnoreCase(name)) {
-            return Redis;
-        } else if (Eureka.name().equalsIgnoreCase(name)) {
-            return Eureka;
-        } else if (ZK.name().equalsIgnoreCase(name)) {
-            return ZK;
-        } else if (Consul.name().equalsIgnoreCase(name)) {
-            return Consul;
-        } else {
-            throw new NotSupportYetException("unsupported type:" + name);
+        for (RegistryType registryType : RegistryType.values()) {
+            if (registryType.name().equalsIgnoreCase(name)) {
+                return registryType;
+            }
         }
+        throw new NotSupportYetException("unsupported type:" + name);
     }
 }

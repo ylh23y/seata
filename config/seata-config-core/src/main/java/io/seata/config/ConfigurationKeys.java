@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,14 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.config;
 
 /**
  * The type Configuration keys.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2019 /02/26
+ * @author slievrly
  */
 public final class ConfigurationKeys {
     /**
@@ -31,6 +29,10 @@ public final class ConfigurationKeys {
      * The constant FILE_ROOT_CONFIG.
      */
     public static final String FILE_ROOT_CONFIG = "config";
+    /**
+     * The constant SEATA_FILE_ROOT_CONFIG
+     */
+    public static final String SEATA_FILE_ROOT_CONFIG = "seata";
     /**
      * The constant FILE_CONFIG_SPLIT_CHAR.
      */

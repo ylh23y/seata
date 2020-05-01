@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,27 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.discovery.registry;
+
+import java.util.Objects;
 
 import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.loader.EnhancedServiceLoader;
 import io.seata.config.ConfigurationFactory;
 import io.seata.config.ConfigurationKeys;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
-
 /**
  * The type Registry factory.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2019 /2/1
+ * @author slievrly
  */
 public class RegistryFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RegistryFactory.class);
+
+    private static volatile RegistryService instance = null;
 
     /**
      * Gets instance.
@@ -41,8 +37,19 @@ public class RegistryFactory {
      * @return the instance
      */
     public static RegistryService getInstance() {
+        if (instance == null) {
+            synchronized (RegistryFactory.class) {
+                if (instance == null) {
+                    instance = buildRegistryService();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private static RegistryService buildRegistryService() {
         RegistryType registryType;
-        String registryTypeName = ConfigurationFactory.FILE_INSTANCE.getConfig(
+        String registryTypeName = ConfigurationFactory.CURRENT_FILE_INSTANCE.getConfig(
             ConfigurationKeys.FILE_ROOT_REGISTRY + ConfigurationKeys.FILE_CONFIG_SPLIT_CHAR
                 + ConfigurationKeys.FILE_ROOT_TYPE);
         try {

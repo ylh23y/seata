@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package io.seata.tm.api.transaction;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -24,11 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author guoyao
- * @date 2019/3/5
  */
 public class TransactionHookManagerTest {
 
-    @After
+    @AfterEach
     public void clear() {
         TransactionHookManager.clear();
     }
@@ -57,5 +57,8 @@ public class TransactionHookManagerTest {
         TransactionHookManager.clear();
         assertThat(TransactionHookManager.getHooks()).isEmpty();
     }
-
+    @Test
+    public void testNPE() {
+        Assertions.assertThrows(NullPointerException.class, () -> TransactionHookManager.registerHook(null));
+    }
 }

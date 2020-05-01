@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,15 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.undo;
 
-import com.alibaba.druid.util.JdbcConstants;
-import io.seata.common.exception.NotSupportYetException;
 import io.seata.common.exception.ShouldNeverHappenException;
-import io.seata.rm.datasource.undo.mysql.MySQLUndoDeleteExecutor;
-import io.seata.rm.datasource.undo.mysql.MySQLUndoInsertExecutor;
-import io.seata.rm.datasource.undo.mysql.MySQLUndoUpdateExecutor;
 
 /**
  * The type Undo executor factory.
@@ -38,18 +32,21 @@ public class UndoExecutorFactory {
      * @return the undo executor
      */
     public static AbstractUndoExecutor getUndoExecutor(String dbType, SQLUndoLog sqlUndoLog) {
-        if (!dbType.equals(JdbcConstants.MYSQL)) {
-            throw new NotSupportYetException(dbType);
-        }
+        AbstractUndoExecutor result = null;
+        UndoExecutorHolder holder = UndoExecutorHolderFactory.getUndoExecutorHolder(dbType.toLowerCase());
         switch (sqlUndoLog.getSqlType()) {
             case INSERT:
-                return new MySQLUndoInsertExecutor(sqlUndoLog);
+                result = holder.getInsertExecutor(sqlUndoLog);
+                break;
             case UPDATE:
-                return new MySQLUndoUpdateExecutor(sqlUndoLog);
+                result = holder.getUpdateExecutor(sqlUndoLog);
+                break;
             case DELETE:
-                return new MySQLUndoDeleteExecutor(sqlUndoLog);
+                result = holder.getDeleteExecutor(sqlUndoLog);
+                break;
             default:
                 throw new ShouldNeverHappenException();
         }
+        return result;
     }
 }

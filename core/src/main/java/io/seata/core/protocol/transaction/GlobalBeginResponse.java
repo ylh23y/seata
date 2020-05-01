@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,21 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol.transaction;
 
-import java.nio.ByteBuffer;
-
-import io.seata.core.protocol.AbstractMessage;
+import io.seata.core.protocol.MessageType;
 
 /**
  * The type Global begin response.
  *
- * @author jimin.jm @alibaba-inc.com
+ * @author slievrly
  */
 public class GlobalBeginResponse extends AbstractTransactionResponse {
-
-    private static final long serialVersionUID = -5947172130577163908L;
 
     private String xid;
 
@@ -71,50 +66,7 @@ public class GlobalBeginResponse extends AbstractTransactionResponse {
 
     @Override
     public short getTypeCode() {
-        return AbstractMessage.TYPE_GLOBAL_BEGIN_RESULT;
+        return MessageType.TYPE_GLOBAL_BEGIN_RESULT;
     }
 
-    @Override
-    protected void doEncode() {
-        super.doEncode();
-
-        if (this.xid != null) {
-            byte[] bs = xid.getBytes(UTF8);
-            byteBuffer.putShort((short)bs.length);
-            if (bs.length > 0) {
-                byteBuffer.put(bs);
-            }
-        } else {
-            byteBuffer.putShort((short)0);
-        }
-
-        if (this.extraData != null) {
-            byte[] bs = extraData.getBytes(UTF8);
-            byteBuffer.putShort((short)bs.length);
-            if (bs.length > 0) {
-                byteBuffer.put(bs);
-            }
-        } else {
-            byteBuffer.putShort((short)0);
-        }
-    }
-
-    @Override
-    public void decode(ByteBuffer byteBuffer) {
-        super.decode(byteBuffer);
-
-        short len = byteBuffer.getShort();
-        if (len > 0) {
-            byte[] bs = new byte[len];
-            byteBuffer.get(bs);
-            setXid(new String(bs, UTF8));
-        }
-
-        len = byteBuffer.getShort();
-        if (len > 0) {
-            byte[] bs = new byte[len];
-            byteBuffer.get(bs);
-            setExtraData(new String(bs, UTF8));
-        }
-    }
 }

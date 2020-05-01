@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,10 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol;
-
-import io.netty.buffer.ByteBuf;
 
 /**
  * The type Abstract identify response.
@@ -26,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 public abstract class AbstractIdentifyResponse extends AbstractResultMessage {
 
     private String version = Version.CURRENT;
-    ;
 
     private String extraData;
 
@@ -86,62 +82,24 @@ public abstract class AbstractIdentifyResponse extends AbstractResultMessage {
         this.identified = identified;
     }
 
-    @Override
-    public void doEncode() {
-        //        super.doEncode();
-        byteBuffer.put(this.identified ? (byte)1 : (byte)0);
-        if (this.version != null) {
-            byte[] bs = version.getBytes(UTF8);
-            byteBuffer.putShort((short)bs.length);
-            if (bs.length > 0) {
-                byteBuffer.put(bs);
-            }
-        } else {
-            byteBuffer.putShort((short)0);
-        }
-
-    }
-
-    @Override
-    public boolean decode(ByteBuf in) {
-        int i = in.readableBytes();
-        if (i < 3) {
-            return false;
-        }
-        i -= 3;
-        this.identified = (in.readByte() == 1);
-
-        short len = in.readShort();
-        if (len > 0) {
-            if (i < len) {
-                return false;
-            }
-
-            byte[] bs = new byte[len];
-            in.readBytes(bs);
-            this.setVersion(new String(bs, UTF8));
-        }
-
-        return true;
-    }
 
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("version=");
-        result.append(String.valueOf(version));
+        result.append(version);
         result.append(",");
         result.append("extraData=");
-        result.append(String.valueOf(extraData));
+        result.append(extraData);
         result.append(",");
         result.append("identified=");
-        result.append(String.valueOf(identified));
+        result.append(identified);
         result.append(",");
         result.append("resultCode=");
-        result.append(String.valueOf(getResultCode()));
+        result.append(getResultCode());
         result.append(",");
         result.append("msg=");
-        result.append(String.valueOf(getMsg()));
+        result.append(getMsg());
 
         return result.toString();
     }

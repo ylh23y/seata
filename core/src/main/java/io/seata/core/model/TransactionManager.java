@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.model;
 
-import io.seata.core.exception.TransactionException;
 import io.seata.core.exception.TransactionException;
 
 /**
@@ -71,4 +69,15 @@ public interface TransactionManager {
      * out.
      */
     GlobalStatus getStatus(String xid) throws TransactionException;
+
+    /**
+     * Global report.
+     *
+     * @param xid XID of the global transaction.
+     * @param globalStatus Status of the global transaction.
+     * @return Status of the global transaction.
+     * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
+     * out.
+     */
+    GlobalStatus globalReport(String xid, GlobalStatus globalStatus) throws TransactionException;
 }

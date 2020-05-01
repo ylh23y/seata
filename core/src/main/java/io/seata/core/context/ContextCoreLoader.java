@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.context;
+
+import java.util.Optional;
 
 import io.seata.common.loader.EnhancedServiceLoader;
 
@@ -25,17 +26,12 @@ import io.seata.common.loader.EnhancedServiceLoader;
  */
 public class ContextCoreLoader {
 
-    private static class ContextCoreHolder {
-        private static ContextCore INSTANCE;
+    private ContextCoreLoader() {
 
-        static {
-            ContextCore contextCore = EnhancedServiceLoader.load(ContextCore.class);
-            if (contextCore == null) {
-                // Default
-                contextCore = new ThreadLocalContextCore();
-            }
-            INSTANCE = contextCore;
-        }
+    }
+
+    private static class ContextCoreHolder {
+        private static final ContextCore INSTANCE = Optional.ofNullable(EnhancedServiceLoader.load(ContextCore.class)).orElse(new ThreadLocalContextCore());
     }
 
     /**

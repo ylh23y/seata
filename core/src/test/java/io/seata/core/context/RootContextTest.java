@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@ package io.seata.core.context;
 
 import io.seata.common.exception.ShouldNeverHappenException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * The type Root context test.
  *
  * @author guoyao
- * @date 2019 /3/2
  */
 public class RootContextTest {
 
@@ -70,17 +70,19 @@ public class RootContextTest {
     /**
      * Test assert not in global transaction with exception.
      */
-    @Test(expected = ShouldNeverHappenException.class)
+    @Test
     public void testAssertNotInGlobalTransactionWithException() {
-        try {
-            RootContext.assertNotInGlobalTransaction();
-            RootContext.bind(DEFAULT_XID);
-            RootContext.assertNotInGlobalTransaction();
-        } finally {
-            //clear
-            RootContext.unbind();
-            assertThat(RootContext.getXID()).isNull();
-        }
+        Assertions.assertThrows(ShouldNeverHappenException.class, () -> {
+            try {
+                RootContext.assertNotInGlobalTransaction();
+                RootContext.bind(DEFAULT_XID);
+                RootContext.assertNotInGlobalTransaction();
+            } finally {
+                //clear
+                RootContext.unbind();
+                assertThat(RootContext.getXID()).isNull();
+            }
+        });
     }
 
     /**

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~  Copyright 1999-2018 Alibaba Group Holding Ltd.
+  ~  Copyright 1999-2019 Seata.io Group.
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -20,17 +20,23 @@
     <parent>
         <groupId>io.seata</groupId>
         <artifactId>seata-parent</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>seata-distribution</artifactId>
     <packaging>pom</packaging>
     <name>seata-distribution ${project.version}</name>
 
+    <properties>
+        <mysql.jdbc.version>5.1.35</mysql.jdbc.version>
+        <mysql8.jdbc.version>8.0.19</mysql8.jdbc.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.seata</groupId>
             <artifactId>seata-server</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <profiles>
@@ -40,11 +46,44 @@
                 <dependency>
                     <groupId>io.seata</groupId>
                     <artifactId>seata-server</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.1.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-mysql</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>mysql</groupId>
+                                            <artifactId>mysql-connector-java</artifactId>
+                                            <version>${mysql.jdbc.version}</version>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>mysql</groupId>
+                                            <artifactId>mysql-connector-java</artifactId>
+                                            <version>${mysql8.jdbc.version}</version>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>
+                                        ${basedir}/lib/jdbc
+                                    </outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <version>3.0.0</version>
                         <configuration>

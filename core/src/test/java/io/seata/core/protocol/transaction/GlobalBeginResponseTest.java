@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,19 +15,15 @@
  */
 package io.seata.core.protocol.transaction;
 
+import io.seata.core.protocol.MessageType;
 import io.seata.core.protocol.ResultCode;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.nio.ByteBuffer;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * A unit test for {@link GlobalBeginResponse}
  *
  * @author liujc
- * @date 2019/3/22 11:09
  **/
 public class GlobalBeginResponseTest {
     private final String XID = "test_xid";
@@ -38,33 +34,20 @@ public class GlobalBeginResponseTest {
     public void testGetSetXid() {
         GlobalBeginResponse globalBeginResponse = new GlobalBeginResponse();
         globalBeginResponse.setXid(XID);
-        Assert.assertEquals(XID, globalBeginResponse.getXid());
+        Assertions.assertEquals(XID, globalBeginResponse.getXid());
     }
 
     @Test
     public void testGetSetExtraData() {
         GlobalBeginResponse globalBeginResponse = new GlobalBeginResponse();
         globalBeginResponse.setExtraData(EXTRA_DATA);
-        Assert.assertEquals(EXTRA_DATA, globalBeginResponse.getExtraData());
+        Assertions.assertEquals(EXTRA_DATA, globalBeginResponse.getExtraData());
     }
 
     @Test
     public void testGetTypeCode() {
         GlobalBeginResponse globalBeginResponse = new GlobalBeginResponse();
-        Assert.assertEquals(GlobalBeginResponse.TYPE_GLOBAL_BEGIN_RESULT, globalBeginResponse.getTypeCode());
+        Assertions.assertEquals(MessageType.TYPE_GLOBAL_BEGIN_RESULT, globalBeginResponse.getTypeCode());
     }
 
-    @Test
-    public void testDoEncodeAndDecode() {
-        GlobalBeginResponse globalBeginResponseOne = new GlobalBeginResponse();
-        globalBeginResponseOne.setXid(XID);
-        globalBeginResponseOne.setExtraData(EXTRA_DATA);
-        globalBeginResponseOne.setResultCode(RESULT_CODE);
-        byte[] encode = globalBeginResponseOne.encode();
-        GlobalBeginResponse globalBeginResponseTwo = new GlobalBeginResponse();
-        globalBeginResponseTwo.decode(ByteBuffer.wrap(encode));
-        assertThat(globalBeginResponseOne.getXid()).isEqualTo(globalBeginResponseTwo.getXid());
-        assertThat(globalBeginResponseOne.getExtraData()).isEqualTo(globalBeginResponseTwo.getExtraData());
-        assertThat(globalBeginResponseOne.getResultCode()).isEqualTo(globalBeginResponseTwo.getResultCode());
-    }
 }

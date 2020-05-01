@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.spring.tcc;
 
 import io.seata.rm.tcc.api.BusinessActionContext;
@@ -34,7 +33,7 @@ public interface TccAction {
      * @return the boolean
      */
     @TwoPhaseBusinessAction(name = "tccActionForSpringTest" , commitMethod = "commit", rollbackMethod = "rollback")
-    public boolean prepare(BusinessActionContext actionContext, int i);
+    boolean prepare(BusinessActionContext actionContext, int i);
 
     /**
      * Commit boolean.
@@ -42,7 +41,7 @@ public interface TccAction {
      * @param actionContext the action context
      * @return the boolean
      */
-    public boolean commit(BusinessActionContext actionContext);
+    boolean commit(BusinessActionContext actionContext);
 
     /**
      * Rollback boolean.
@@ -50,5 +49,5 @@ public interface TccAction {
      * @param actionContext the action context
      * @return the boolean
      */
-    public boolean rollback(BusinessActionContext actionContext);
+    boolean rollback(BusinessActionContext actionContext);
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,14 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol.transaction;
 
-import java.nio.ByteBuffer;
-
 import io.seata.core.model.BranchStatus;
-
-import io.netty.buffer.ByteBuf;
 
 /**
  * The type Abstract branch end response.
@@ -95,45 +90,6 @@ public abstract class AbstractBranchEndResponse extends AbstractTransactionRespo
      */
     public void setBranchStatus(BranchStatus branchStatus) {
         this.branchStatus = branchStatus;
-    }
-
-    @Override
-    protected void doEncode() {
-        super.doEncode();
-        if (this.xid != null) {
-            byte[] bs = xid.getBytes(UTF8);
-            byteBuffer.putShort((short)bs.length);
-            if (bs.length > 0) {
-                byteBuffer.put(bs);
-            }
-        } else {
-            byteBuffer.putShort((short)0);
-        }
-        byteBuffer.putLong(this.branchId);
-        byteBuffer.put((byte)branchStatus.getCode());
-    }
-
-    @Override
-    public void decode(ByteBuffer byteBuffer) {
-        super.decode(byteBuffer);
-        short xidLen = byteBuffer.getShort();
-        if (xidLen > 0) {
-            byte[] bs = new byte[xidLen];
-            byteBuffer.get(bs);
-            this.setXid(new String(bs, UTF8));
-        }
-        branchId = byteBuffer.getLong();
-        branchStatus = BranchStatus.get(byteBuffer.get());
-    }
-
-    @Override
-    public boolean decode(ByteBuf in) {
-        boolean s = super.decode(in);
-        if (!s) {
-            return s;
-        }
-        branchStatus = BranchStatus.get(in.readByte());
-        return true;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,29 +13,43 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.undo;
 
 /**
  * The interface Undo log parser.
  *
  * @author sharajava
+ * @author Geng Zhang
  */
 public interface UndoLogParser {
 
     /**
-     * Encode string.
-     *
-     * @param branchUndoLog the branch undo log
-     * @return the string
+     * Get the name of parser;
+     * 
+     * @return the name of parser
      */
-    String encode(BranchUndoLog branchUndoLog);
+    String getName();
 
     /**
-     * Decode branch undo log.
+     * Get default context of this parser
+     * 
+     * @return the default content if undo log is empty
+     */
+    byte[] getDefaultContent();
+
+    /**
+     * Encode branch undo log to byte array.
      *
-     * @param text the text
+     * @param branchUndoLog the branch undo log
+     * @return the byte array
+     */
+    byte[] encode(BranchUndoLog branchUndoLog);
+
+    /**
+     * Decode byte array to branch undo log.
+     *
+     * @param bytes the byte array
      * @return the branch undo log
      */
-    BranchUndoLog decode(String text);
+    BranchUndoLog decode(byte[] bytes);
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.sql.struct;
 
 /**
@@ -29,15 +28,15 @@ public enum IndexType {
     /**
      * Normal index type.
      */
-    Normal(1),
+    NORMAL(1),
     /**
      * Unique index type.
      */
-    Unique(2),
+    UNIQUE(2),
     /**
      * Full text index type.
      */
-    FullText(3);
+    FULL_TEXT(3);
 
     private int i;
 

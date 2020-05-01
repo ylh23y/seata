@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.context;
 
 import java.util.HashMap;
@@ -24,7 +23,7 @@ import io.seata.common.loader.LoadLevel;
 /**
  * The type Thread local context core.
  *
- * @author jimin.jm @alibaba-inc.com
+ * @author slievrly
  */
 @LoadLevel(name = "ThreadLocalContextCore", order = Integer.MIN_VALUE)
 public class ThreadLocalContextCore implements ContextCore {
@@ -50,5 +49,10 @@ public class ThreadLocalContextCore implements ContextCore {
     @Override
     public String remove(String key) {
         return threadLocal.get().remove(key);
+    }
+
+    @Override
+    public Map<String, String> entries() {
+        return threadLocal.get();
     }
 }

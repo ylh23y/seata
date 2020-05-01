@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,22 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol.transaction;
 
-import io.seata.core.rpc.RpcContext;
+import io.seata.core.protocol.MessageType;
 import io.seata.core.rpc.RpcContext;
 
 /**
  * The type Global status request.
  *
- * @author jimin.jm @alibaba-inc.com
+ * @author slievrly
  */
 public class GlobalStatusRequest extends AbstractGlobalEndRequest {
 
     @Override
     public short getTypeCode() {
-        return TYPE_GLOBAL_STATUS;
+        return MessageType.TYPE_GLOBAL_STATUS;
     }
 
     @Override

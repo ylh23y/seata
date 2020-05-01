@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.tcc;
 
 import io.seata.core.model.BranchType;
 import io.seata.core.model.ResourceManager;
+import io.seata.core.protocol.transaction.UndoLogDeleteRequest;
 import io.seata.rm.AbstractRMHandler;
 import io.seata.rm.DefaultResourceManager;
 
@@ -28,8 +28,14 @@ import io.seata.rm.DefaultResourceManager;
  */
 public class RMHandlerTCC extends AbstractRMHandler {
 
+    @Override
+    public void handle(UndoLogDeleteRequest request) {
+        //DO nothing
+    }
+
     /**
      * get TCC resource manager
+     *
      * @return
      */
     @Override
@@ -38,7 +44,7 @@ public class RMHandlerTCC extends AbstractRMHandler {
     }
 
     @Override
-    public BranchType getBranchType(){
+    public BranchType getBranchType() {
         return BranchType.TCC;
     }
 

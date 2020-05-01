@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.tm.api;
 
 import io.seata.core.context.RootContext;
@@ -36,8 +35,7 @@ public class GlobalTransactionContext {
      * @return
      */
     private static GlobalTransaction createNew() {
-        GlobalTransaction tx = new DefaultGlobalTransaction();
-        return tx;
+        return new DefaultGlobalTransaction();
     }
 
     /**
@@ -74,12 +72,11 @@ public class GlobalTransactionContext {
      * @throws TransactionException the transaction exception
      */
     public static GlobalTransaction reload(String xid) throws TransactionException {
-        GlobalTransaction tx = new DefaultGlobalTransaction(xid, GlobalStatus.UnKnown, GlobalTransactionRole.Launcher) {
+        return new DefaultGlobalTransaction(xid, GlobalStatus.UnKnown, GlobalTransactionRole.Launcher) {
             @Override
             public void begin(int timeout, String name) throws TransactionException {
                 throw new IllegalStateException("Never BEGIN on a RELOADED GlobalTransaction. ");
             }
         };
-        return tx;
     }
 }

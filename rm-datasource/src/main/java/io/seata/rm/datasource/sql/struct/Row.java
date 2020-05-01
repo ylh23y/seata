@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.sql.struct;
 
 import java.util.ArrayList;
@@ -66,12 +65,12 @@ public class Row {
     /**
      * Primary keys list.
      *
-     * @return the list
+     * @return the Primary keys list
      */
     public List<Field> primaryKeys() {
         List<Field> pkFields = new ArrayList<>();
         for (Field field : fields) {
-            if (KeyType.PrimaryKey == field.getKeyType()) {
+            if (KeyType.PRIMARY_KEY == field.getKeyType()) {
                 pkFields.add(field);
             }
         }
@@ -79,5 +78,20 @@ public class Row {
             throw new NotSupportYetException("Multi-PK");
         }
         return pkFields;
+    }
+
+    /**
+     * Non-primary keys list.
+     *
+     * @return the non-primary list
+     */
+    public List<Field> nonPrimaryKeys() {
+        List<Field> nonPkFields = new ArrayList<>();
+        for (Field field : fields) {
+            if (KeyType.PRIMARY_KEY != field.getKeyType()) {
+                nonPkFields.add(field);
+            }
+        }
+        return nonPkFields;
     }
 }

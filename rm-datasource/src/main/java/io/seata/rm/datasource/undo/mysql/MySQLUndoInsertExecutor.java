@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,27 +13,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.undo.mysql;
+
+import io.seata.common.exception.ShouldNeverHappenException;
+import io.seata.common.util.CollectionUtils;
+import io.seata.rm.datasource.ColumnUtils;
+import io.seata.rm.datasource.sql.struct.Field;
+import io.seata.rm.datasource.sql.struct.Row;
+import io.seata.rm.datasource.sql.struct.TableRecords;
+import io.seata.rm.datasource.undo.AbstractUndoExecutor;
+import io.seata.rm.datasource.undo.SQLUndoLog;
+import io.seata.sqlparser.util.JdbcConstants;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.alibaba.druid.util.JdbcConstants;
-import io.seata.common.exception.ShouldNeverHappenException;
-import io.seata.rm.datasource.sql.struct.Field;
-import io.seata.rm.datasource.sql.struct.KeyType;
-import io.seata.rm.datasource.sql.struct.Row;
-import io.seata.rm.datasource.sql.struct.TableRecords;
-import io.seata.rm.datasource.undo.AbstractUndoExecutor;
-import io.seata.rm.datasource.undo.KeywordChecker;
-import io.seata.rm.datasource.undo.KeywordCheckerFactory;
-import io.seata.rm.datasource.undo.SQLUndoLog;
-import io.seata.rm.datasource.undo.AbstractUndoExecutor;
-import io.seata.rm.datasource.undo.KeywordChecker;
-import io.seata.rm.datasource.undo.KeywordCheckerFactory;
 
 /**
  * The type My sql undo insert executor.
@@ -42,26 +37,29 @@ import io.seata.rm.datasource.undo.KeywordCheckerFactory;
  */
 public class MySQLUndoInsertExecutor extends AbstractUndoExecutor {
 
+    /**
+     * DELETE FROM a WHERE pk = ?
+     */
+    private static final String DELETE_SQL_TEMPLATE = "DELETE FROM %s WHERE %s = ?";
+
+    /**
+     * Undo Inset.
+     *
+     * @return sql
+     */
     @Override
     protected String buildUndoSQL() {
-        KeywordChecker keywordChecker = KeywordCheckerFactory.getKeywordChecker(JdbcConstants.MYSQL);
         TableRecords afterImage = sqlUndoLog.getAfterImage();
         List<Row> afterImageRows = afterImage.getRows();
-        if (afterImageRows == null || afterImageRows.size() == 0) {
+        if (CollectionUtils.isEmpty(afterImageRows)) {
             throw new ShouldNeverHappenException("Invalid UNDO LOG");
         }
         Row row = afterImageRows.get(0);
-        StringBuffer mainSQL = new StringBuffer(
-            "DELETE FROM " + keywordChecker.checkAndReplace(sqlUndoLog.getTableName()));
-        StringBuffer where = new StringBuffer(" WHERE ");
-        boolean first = true;
-        for (Field field : row.getFields()) {
-            if (field.getKeyType() == KeyType.PrimaryKey) {
-                where.append(keywordChecker.checkAndReplace(field.getName()) + " = ?");
-            }
-
-        }
-        return mainSQL.append(where).toString();
+        Field pkField = row.primaryKeys().get(0);
+        // insert sql undo log after image all field come from table meta, need add escape.
+        // see BaseTransactionalExecutor#buildTableRecords
+        return String.format(DELETE_SQL_TEMPLATE, sqlUndoLog.getTableName(),
+                             ColumnUtils.addEscape(pkField.getName(), JdbcConstants.MYSQL));
     }
 
     @Override

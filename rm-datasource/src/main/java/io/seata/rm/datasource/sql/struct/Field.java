@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.sql.struct;
 
 /**
@@ -26,19 +25,19 @@ public class Field {
     /**
      * The Name.
      */
-    public String name;
+    private String name;
 
     private KeyType keyType = KeyType.NULL;
 
     /**
      * The Type.
      */
-    public int type;
+    private int type;
 
     /**
      * The Value.
      */
-    public Object value;
+    private Object value;
 
     /**
      * Instantiates a new Field.
@@ -143,6 +142,6 @@ public class Field {
 
     @Override
     public String toString() {
-        return String.format("[%s,%s]", name, String.valueOf(value));
+        return String.format("[%s,%s]", name, value);
     }
 }

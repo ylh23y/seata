@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.tcc.remoting.parser;
 
 import io.seata.common.exception.FrameworkException;
@@ -31,45 +30,39 @@ public class DubboRemotingParser extends AbstractedRemotingParser {
     @Override
     public boolean isReference(Object bean, String beanName) throws FrameworkException {
         Class<?> c = bean.getClass();
-        if("com.alibaba.dubbo.config.spring.ReferenceBean".equals(c.getName())
-                || "org.apache.dubbo.config.spring.ReferenceBean".equals(c.getName())){
-            return true;
-        }
-        return false;
+        return "com.alibaba.dubbo.config.spring.ReferenceBean".equals(c.getName())
+            || "org.apache.dubbo.config.spring.ReferenceBean".equals(c.getName());
     }
 
     @Override
     public boolean isService(Object bean, String beanName) throws FrameworkException {
         Class<?> c = bean.getClass();
-        if("com.alibaba.dubbo.config.spring.ServiceBean".equals(c.getName())
-                || "org.apache.dubbo.config.spring.ServiceBean".equals(c.getName())){
-            return true;
-        }
-        return false;
+        return "com.alibaba.dubbo.config.spring.ServiceBean".equals(c.getName())
+            || "org.apache.dubbo.config.spring.ServiceBean".equals(c.getName());
     }
 
     @Override
     public RemotingDesc getServiceDesc(Object bean, String beanName) throws FrameworkException {
-        if(!this.isRemoting(bean, beanName)){
+        if (!this.isRemoting(bean, beanName)) {
             return null;
         }
-        try{
+        try {
             RemotingDesc serviceBeanDesc = new RemotingDesc();
-            Class<?> interfaceClass = (Class<?>) ReflectionUtil.invokeMethod(bean, "getInterfaceClass");
-            String interfaceClassName = (String) ReflectionUtil.getFieldValue(bean, "interfaceName");
-            String version = (String) ReflectionUtil.invokeMethod(bean, "getVersion");
+            Class<?> interfaceClass = (Class<?>)ReflectionUtil.invokeMethod(bean, "getInterfaceClass");
+            String interfaceClassName = (String)ReflectionUtil.getFieldValue(bean, "interfaceName");
+            String version = (String)ReflectionUtil.invokeMethod(bean, "getVersion");
             String group = (String)ReflectionUtil.invokeMethod(bean, "getGroup");
             serviceBeanDesc.setInterfaceClass(interfaceClass);
             serviceBeanDesc.setInterfaceClassName(interfaceClassName);
             serviceBeanDesc.setUniqueId(version);
             serviceBeanDesc.setGroup(group);
             serviceBeanDesc.setProtocol(Protocols.DUBBO);
-            if(isService(bean, beanName)){
+            if (isService(bean, beanName)) {
                 Object targetBean = ReflectionUtil.getFieldValue(bean, "ref");
                 serviceBeanDesc.setTargetBean(targetBean);
             }
             return serviceBeanDesc;
-        }catch (Throwable t){
+        } catch (Throwable t) {
             throw new FrameworkException(t);
         }
     }

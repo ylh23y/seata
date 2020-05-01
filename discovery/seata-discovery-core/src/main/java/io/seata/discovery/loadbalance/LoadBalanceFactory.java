@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.discovery.loadbalance;
 
 import io.seata.common.loader.EnhancedServiceLoader;
@@ -21,8 +20,7 @@ import io.seata.common.loader.EnhancedServiceLoader;
 /**
  * The type Load balance factory.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2019 /02/12
+ * @author slievrly
  */
 public class LoadBalanceFactory {
 
@@ -32,7 +30,6 @@ public class LoadBalanceFactory {
      * @return the instance
      */
     public static LoadBalance getInstance() {
-        LoadBalance loadBalance = EnhancedServiceLoader.load(LoadBalance.class);
-        return loadBalance;
+        return EnhancedServiceLoader.load(LoadBalance.class);
     }
 }

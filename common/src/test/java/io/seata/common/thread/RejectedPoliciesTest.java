@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.common.thread;
 
 import java.util.concurrent.CountDownLatch;
@@ -22,7 +21,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,43 +45,34 @@ public class RejectedPoliciesTest {
         ThreadPoolExecutor poolExecutor =
             new ThreadPoolExecutor(DEFAULT_CORE_POOL_SIZE, DEFAULT_CORE_POOL_SIZE, DEFAULT_KEEP_ALIVE_TIME,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue(MAX_QUEUE_SIZE),
+                new LinkedBlockingQueue<>(MAX_QUEUE_SIZE),
                 new NamedThreadFactory("OldestRunsPolicy", DEFAULT_CORE_POOL_SIZE),
                 RejectedPolicies.runsOldestTaskPolicy());
         CountDownLatch downLatch1 = new CountDownLatch(1);
         CountDownLatch downLatch2 = new CountDownLatch(1);
         CountDownLatch downLatch3 = new CountDownLatch(1);
         //task1
-        poolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    //wait the oldest task of queue count down
-                    downLatch1.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                atomicInteger.getAndAdd(1);
+        poolExecutor.execute(() -> {
+            try {
+                //wait the oldest task of queue count down
+                downLatch1.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            atomicInteger.getAndAdd(1);
         });
         assertThat(atomicInteger.get()).isEqualTo(0);
         //task2
-        poolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                // run second
-                atomicInteger.getAndAdd(2);
-            }
+        poolExecutor.execute(() -> {
+            // run second
+            atomicInteger.getAndAdd(2);
         });
         //task3
-        poolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                downLatch2.countDown();
-                //task3 run
-                atomicInteger.getAndAdd(3);
-                downLatch3.countDown();
-            }
+        poolExecutor.execute(() -> {
+            downLatch2.countDown();
+            //task3 run
+            atomicInteger.getAndAdd(3);
+            downLatch3.countDown();
         });
         //only the task2 run which is the oldest task of queue
         assertThat(atomicInteger.get()).isEqualTo(2);

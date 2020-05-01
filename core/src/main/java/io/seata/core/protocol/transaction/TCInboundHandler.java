@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol.transaction;
 
-import io.seata.core.rpc.RpcContext;
 import io.seata.core.rpc.RpcContext;
 
 /**
@@ -88,5 +86,14 @@ public interface TCInboundHandler {
      * @return the global status response
      */
     GlobalStatusResponse handle(GlobalStatusRequest globalStatus, RpcContext rpcContext);
+
+    /**
+     * Handle global report request.
+     *
+     * @param globalReport the global report request
+     * @param rpcContext   the rpc context
+     * @return the global report response
+     */
+    GlobalReportResponse handle(GlobalReportRequest globalReport, RpcContext rpcContext);
 
 }

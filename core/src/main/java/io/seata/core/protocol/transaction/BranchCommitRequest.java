@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,11 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol.transaction;
 
-import io.seata.core.protocol.AbstractMessage;
-import io.seata.core.rpc.RpcContext;
+import io.seata.core.protocol.MessageType;
 import io.seata.core.rpc.RpcContext;
 
 /**
@@ -29,11 +27,13 @@ public class BranchCommitRequest extends AbstractBranchEndRequest {
 
     @Override
     public short getTypeCode() {
-        return AbstractMessage.TYPE_BRANCH_COMMIT;
+        return MessageType.TYPE_BRANCH_COMMIT;
     }
 
     @Override
     public AbstractTransactionResponse handle(RpcContext rpcContext) {
         return handler.handle(this);
     }
+
+
 }

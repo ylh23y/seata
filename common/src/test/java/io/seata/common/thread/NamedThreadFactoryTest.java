@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@ package io.seata.common.thread;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Otis.z
- * @date 2019/2/26
  */
 public class NamedThreadFactoryTest {
 
@@ -40,5 +39,14 @@ public class NamedThreadFactoryTest {
             });
         assertThat(testNameThread.getName()).startsWith("testNameThread");
         assertThat(testNameThread.isDaemon()).isTrue();
+    }
+
+    @Test
+    public void testConstructorWithPrefixAndDaemons() {
+        NamedThreadFactory factory = new NamedThreadFactory("prefix", true);
+        Thread thread = factory.newThread(() -> {});
+
+        assertThat(thread.getName()).startsWith("prefix");
+        assertThat(thread.isDaemon()).isTrue();
     }
 }

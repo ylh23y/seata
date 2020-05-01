@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * The type Net util test.
  *
  * @author Otis.z
- * @date 2019 /2/26
  */
 public class NetUtilTest {
 
@@ -132,7 +131,6 @@ public class NetUtilTest {
         r = r | (Long.parseLong(split[1]) << 32);
         r = r | (Long.parseLong(split[2]) << 24);
         r = r | (Long.parseLong(split[3]) << 16);
-        r = r | 0;
         assertThat(NetUtil.toLong("127.0.0.1")).isEqualTo(r);
 
     }

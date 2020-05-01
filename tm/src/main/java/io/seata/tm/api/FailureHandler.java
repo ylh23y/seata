@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,13 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.tm.api;
 
 /**
  * Callback on failure.
  *
- * @author jimin.jm @alibaba-inc.com
+ * @author slievrly
  */
 public interface FailureHandler {
 
@@ -46,4 +45,12 @@ public interface FailureHandler {
      * @param cause the cause
      */
     void onRollbackFailure(GlobalTransaction tx, Throwable cause);
+
+    /**
+     * On rollback retrying
+     *
+     * @param tx    the tx
+     * @param cause the cause
+     */
+    void onRollbackRetrying(GlobalTransaction tx, Throwable cause);
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm;
 
 import io.seata.common.exception.ShouldNeverHappenException;
@@ -30,9 +29,9 @@ import io.seata.core.protocol.transaction.BranchCommitResponse;
 import io.seata.core.protocol.transaction.BranchRollbackRequest;
 import io.seata.core.protocol.transaction.BranchRollbackResponse;
 import io.seata.core.protocol.transaction.RMInboundHandler;
+import io.seata.core.protocol.transaction.UndoLogDeleteRequest;
 import io.seata.core.rpc.RpcContext;
 import io.seata.core.rpc.TransactionMessageHandler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,7 @@ public abstract class AbstractRMHandler extends AbstractExceptionHandler
     @Override
     public BranchCommitResponse handle(BranchCommitRequest request) {
         BranchCommitResponse response = new BranchCommitResponse();
-        exceptionHandleTemplate(new AbstractExceptionHandler.Callback<BranchCommitRequest, BranchCommitResponse>() {
+        exceptionHandleTemplate(new AbstractCallback<BranchCommitRequest, BranchCommitResponse>() {
             @Override
             public void execute(BranchCommitRequest request, BranchCommitResponse response)
                 throws TransactionException {
@@ -62,7 +61,7 @@ public abstract class AbstractRMHandler extends AbstractExceptionHandler
     @Override
     public BranchRollbackResponse handle(BranchRollbackRequest request) {
         BranchRollbackResponse response = new BranchRollbackResponse();
-        exceptionHandleTemplate(new Callback<BranchRollbackRequest, BranchRollbackResponse>() {
+        exceptionHandleTemplate(new AbstractCallback<BranchRollbackRequest, BranchRollbackResponse>() {
             @Override
             public void execute(BranchRollbackRequest request, BranchRollbackResponse response)
                 throws TransactionException {
@@ -70,6 +69,15 @@ public abstract class AbstractRMHandler extends AbstractExceptionHandler
             }
         }, request, response);
         return response;
+    }
+
+    /**
+     * delete undo log
+     * @param request the request
+     */
+    @Override
+    public void handle(UndoLogDeleteRequest request) {
+        // https://github.com/seata/seata/issues/2226
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,12 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.common.thread;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Policies for RejectedExecutionHandler
@@ -33,21 +31,18 @@ public final class RejectedPolicies {
      * @return rejected execution handler
      */
     public static RejectedExecutionHandler runsOldestTaskPolicy() {
-        return new RejectedExecutionHandler() {
-            @Override
-            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                if (executor.isShutdown()) {
-                    return;
-                }
-                BlockingQueue<Runnable> workQueue = executor.getQueue();
-                Runnable firstWork = workQueue.poll();
-                boolean newTaskAdd = workQueue.offer(r);
-                if (firstWork != null) {
-                    firstWork.run();
-                }
-                if (!newTaskAdd) {
-                    executor.execute(r);
-                }
+        return (r, executor) -> {
+            if (executor.isShutdown()) {
+                return;
+            }
+            BlockingQueue<Runnable> workQueue = executor.getQueue();
+            Runnable firstWork = workQueue.poll();
+            boolean newTaskAdd = workQueue.offer(r);
+            if (firstWork != null) {
+                firstWork.run();
+            }
+            if (!newTaskAdd) {
+                executor.execute(r);
             }
         };
     }

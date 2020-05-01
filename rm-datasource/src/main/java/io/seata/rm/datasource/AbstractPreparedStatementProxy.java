@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource;
+import io.seata.sqlparser.struct.Null;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -37,9 +37,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import io.seata.rm.datasource.sql.struct.Null;
-import io.seata.rm.datasource.sql.struct.Null;
 
 /**
  * The type Abstract prepared statement proxy.
@@ -248,7 +245,7 @@ public abstract class AbstractPreparedStatementProxy extends StatementProxy<Prep
 
     @Override
     public void addBatch() throws SQLException {
-
+        targetStatement.addBatch();
     }
 
     @Override

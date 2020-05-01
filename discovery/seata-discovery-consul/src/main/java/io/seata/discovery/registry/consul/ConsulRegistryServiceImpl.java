@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,27 +13,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.discovery.registry.consul;
 
-import io.seata.common.thread.NamedThreadFactory;
-import io.seata.common.util.NetUtil;
-import io.seata.config.Configuration;
-import io.seata.config.ConfigurationFactory;
-import io.seata.discovery.registry.RegistryService;
 import com.ecwid.consul.v1.ConsulClient;
 import com.ecwid.consul.v1.QueryParams;
 import com.ecwid.consul.v1.Response;
 import com.ecwid.consul.v1.agent.model.NewService;
 import com.ecwid.consul.v1.health.HealthServicesRequest;
 import com.ecwid.consul.v1.health.model.HealthService;
+import io.seata.common.thread.NamedThreadFactory;
+import io.seata.common.util.NetUtil;
+import io.seata.config.Configuration;
+import io.seata.config.ConfigurationFactory;
+import io.seata.discovery.registry.RegistryService;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -44,14 +42,13 @@ import java.util.stream.Collectors;
 
 /**
  * @author xingfudeshi@gmail.com
- * @date 2019/4/1
  */
 public class ConsulRegistryServiceImpl implements RegistryService<ConsulListener> {
 
     private static volatile ConsulRegistryServiceImpl instance;
     private static volatile ConsulClient client;
 
-    private static final Configuration FILE_CONFIG = ConfigurationFactory.FILE_INSTANCE;
+    private static final Configuration FILE_CONFIG = ConfigurationFactory.CURRENT_FILE_INSTANCE;
     private static final String FILE_ROOT_REGISTRY = "registry";
     private static final String FILE_CONFIG_SPLIT_CHAR = ".";
     private static final String REGISTRY_TYPE = "consul";
@@ -61,10 +58,10 @@ public class ConsulRegistryServiceImpl implements RegistryService<ConsulListener
     private static final String SERVICE_TAG = "services";
     private static final String FILE_CONFIG_KEY_PREFIX = FILE_ROOT_REGISTRY + FILE_CONFIG_SPLIT_CHAR + REGISTRY_TYPE + FILE_CONFIG_SPLIT_CHAR;
 
-    private static ConcurrentMap<String, List<InetSocketAddress>> clusterAddressMap = null;
-    private static ConcurrentMap<String, Set<ConsulListener>> listenerMap = null;
-    private static ExecutorService notifierExecutor = null;
-    private static ConcurrentMap<String, ConsulNotifier> notifiers = null;
+    private ConcurrentMap<String, List<InetSocketAddress>> clusterAddressMap;
+    private ConcurrentMap<String, Set<ConsulListener>> listenerMap;
+    private ExecutorService notifierExecutor;
+    private ConcurrentMap<String, ConsulNotifier> notifiers;
 
     private static final int THREAD_POOL_NUM = 1;
     private static final int MAP_INITIAL_CAPACITY = 8;
@@ -88,6 +85,13 @@ public class ConsulRegistryServiceImpl implements RegistryService<ConsulListener
 
 
     private ConsulRegistryServiceImpl() {
+        //initial the capacity with 8
+        clusterAddressMap = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
+        listenerMap = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
+        notifiers = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
+        notifierExecutor = new ThreadPoolExecutor(THREAD_POOL_NUM, THREAD_POOL_NUM,
+            Integer.MAX_VALUE, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
+            new NamedThreadFactory("services-consul-notifier", THREAD_POOL_NUM));
     }
 
     /**
@@ -99,15 +103,7 @@ public class ConsulRegistryServiceImpl implements RegistryService<ConsulListener
         if (null == instance) {
             synchronized (ConsulRegistryServiceImpl.class) {
                 if (null == instance) {
-                    //initial the capacity with 8
-                    clusterAddressMap = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
-                    listenerMap = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
-                    notifiers = new ConcurrentHashMap<>(MAP_INITIAL_CAPACITY);
-                    notifierExecutor = new ThreadPoolExecutor(THREAD_POOL_NUM, THREAD_POOL_NUM,
-                        Integer.MAX_VALUE, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
-                        new NamedThreadFactory("services-consul-notifier", THREAD_POOL_NUM));
                     instance = new ConsulRegistryServiceImpl();
-
                 }
             }
         }
@@ -158,9 +154,7 @@ public class ConsulRegistryServiceImpl implements RegistryService<ConsulListener
             //1.refresh cluster
             refreshCluster(cluster);
             //2. subscribe
-            subscribe(cluster, services -> {
-                refreshCluster(cluster, services);
-            });
+            subscribe(cluster, services -> refreshCluster(cluster, services));
         }
         return clusterAddressMap.get(cluster);
     }
@@ -187,8 +181,7 @@ public class ConsulRegistryServiceImpl implements RegistryService<ConsulListener
      * @return
      */
     private String getClusterName() {
-        String clusterConfigName = FILE_ROOT_REGISTRY + FILE_CONFIG_SPLIT_CHAR + REGISTRY_TYPE + FILE_CONFIG_SPLIT_CHAR
-            + REGISTRY_CLUSTER;
+        String clusterConfigName = String.join(FILE_CONFIG_SPLIT_CHAR, FILE_ROOT_REGISTRY, REGISTRY_TYPE, REGISTRY_CLUSTER);
         return FILE_CONFIG.getConfig(clusterConfigName, DEFAULT_CLUSTER_NAME);
     }
 
@@ -246,17 +239,6 @@ public class ConsulRegistryServiceImpl implements RegistryService<ConsulListener
             .setQueryParams(new QueryParams(watchTimeout, index))
             .setPassing(true)
             .build());
-    }
-
-    /**
-     * get service group
-     *
-     * @param key
-     * @return clusterNameKey
-     */
-    private String getServiceGroup(String key) {
-        String clusterNameKey = PREFIX_SERVICE_ROOT + CONFIG_SPLIT_CHAR + PREFIX_SERVICE_MAPPING + key;
-        return ConfigurationFactory.getInstance().getConfig(clusterNameKey);
     }
 
     /**

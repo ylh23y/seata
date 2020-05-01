@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.discovery.registry;
 
 
@@ -29,8 +28,7 @@ import java.util.List;
 /**
  * The type File registry service.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2019 /02/12
+ * @author slievrly
  */
 public class FileRegistryServiceImpl implements RegistryService<ConfigChangeListener> {
     private static volatile FileRegistryServiceImpl instance;
@@ -80,7 +78,7 @@ public class FileRegistryServiceImpl implements RegistryService<ConfigChangeList
 
     @Override
     public List<InetSocketAddress> lookup(String key) throws Exception {
-        String clusterName = CONFIG.getConfig(PREFIX_SERVICE_ROOT + CONFIG_SPLIT_CHAR + PREFIX_SERVICE_MAPPING + key);
+        String clusterName = getServiceGroup(key);
         if (null == clusterName) {
             return null;
         }

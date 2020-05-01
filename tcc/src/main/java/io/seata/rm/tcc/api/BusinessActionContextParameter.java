@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,9 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.tcc.api;
-
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,15 +21,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * the TCC parameters that need to be passed to  the BusinessActivityContext；
+ * the TCC parameters that need to be passed to  the BusinessActivityContext;
  * <p>
  * add this annotation on the parameters of the try method, and the parameters will be passed to  the
- * BusinessActivityContext；
+ * BusinessActivityContext
  *
  * @author zhangsen
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.FIELD })
+@Target({ElementType.PARAMETER, ElementType.FIELD})
 public @interface BusinessActionContextParameter {
 
     /**

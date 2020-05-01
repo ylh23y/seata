@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.tm.api;
 
 import io.seata.core.exception.TransactionException;
 import io.seata.core.model.GlobalStatus;
+import io.seata.tm.api.transaction.SuspendedResourcesHolder;
 
 /**
  * Global transaction.
@@ -70,6 +70,26 @@ public interface GlobalTransaction {
     void rollback() throws TransactionException;
 
     /**
+     * Suspend the global transaction.
+     *
+     * @param unbindXid if true,suspend the global transaction.
+     * @return the SuspendedResourcesHolder which holds the suspend resources
+     * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
+     * @see SuspendedResourcesHolder
+     */
+    SuspendedResourcesHolder suspend(boolean unbindXid) throws TransactionException;
+
+    /**
+     * Resume the global transaction.
+     *
+     * @param suspendedResourcesHolder the suspended resources to resume
+     * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
+     * out.
+     * @see SuspendedResourcesHolder
+     */
+    void resume(SuspendedResourcesHolder suspendedResourcesHolder) throws TransactionException;
+
+    /**
      * Ask TC for current status of the corresponding global transaction.
      *
      * @return Status of the corresponding global transaction.
@@ -86,4 +106,21 @@ public interface GlobalTransaction {
      */
     String getXid();
 
+    /**
+     * report the global transaction status.
+     *
+     * @param globalStatus global status.
+     *
+     * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
+     * out.
+     */
+    void globalReport(GlobalStatus globalStatus) throws TransactionException;
+
+    /**
+     * local status of the global transaction.
+     *
+     * @return Status of the corresponding global transaction.
+     * @see GlobalStatus
+     */
+    GlobalStatus getLocalStatus();
 }

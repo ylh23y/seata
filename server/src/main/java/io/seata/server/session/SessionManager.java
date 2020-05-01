@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.server.session;
 
 import java.util.Collection;
@@ -22,13 +21,14 @@ import java.util.List;
 import io.seata.core.exception.TransactionException;
 import io.seata.core.model.BranchStatus;
 import io.seata.core.model.GlobalStatus;
+import io.seata.core.rpc.Disposable;
 
 /**
  * The interface Session manager.
  *
  * @author sharajava
  */
-public interface SessionManager extends SessionLifecycleListener {
+public interface SessionManager extends SessionLifecycleListener, Disposable {
 
     /**
      * Add global session.
@@ -41,11 +41,19 @@ public interface SessionManager extends SessionLifecycleListener {
     /**
      * Find global session global session.
      *
-     * @param transactionId the transaction id
+     * @param xid the xid
      * @return the global session
-     * @throws TransactionException the transaction exception
      */
-    GlobalSession findGlobalSession(Long transactionId) throws TransactionException;
+    GlobalSession findGlobalSession(String xid) ;
+
+    /**
+     * Find global session global session.
+     *
+     * @param xid the xid
+     * @param withBranchSessions the withBranchSessions
+     * @return the global session
+     */
+    GlobalSession findGlobalSession(String xid, boolean withBranchSessions);
 
     /**
      * Update global session status.
@@ -106,4 +114,13 @@ public interface SessionManager extends SessionLifecycleListener {
      */
     List<GlobalSession> findGlobalSessions(SessionCondition condition);
 
+    /**
+     * lock and execute
+     *
+     * @param globalSession the global session
+     * @param lockCallable the lock Callable
+     * @return the value
+     */
+    <T> T lockAndExecute(GlobalSession globalSession, GlobalSession.LockCallable<T> lockCallable)
+            throws TransactionException;
 }

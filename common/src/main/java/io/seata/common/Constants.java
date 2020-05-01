@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.common;
+
+import java.nio.charset.Charset;
 
 /**
  * The type Constants.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2018 /10/9 17:14
+ * @author slievrly
  */
 public class Constants {
     /**
@@ -98,4 +98,29 @@ public class Constants {
      */
     public final static String TCC_ACTION_CONTEXT = "actionContext";
 
+    /**
+     * default charset name
+     */
+    public static final String DEFAULT_CHARSET_NAME = "UTF-8";
+    
+    /**
+     * default charset is utf-8
+     */
+    public static final Charset DEFAULT_CHARSET = Charset.forName(DEFAULT_CHARSET_NAME);
+    /**
+     * The constant OBJECT_KEY_SPRING_APPLICATION_CONTEXT
+     */
+    public static final String OBJECT_KEY_SPRING_APPLICATION_CONTEXT = "springApplicationContext";
+    /**
+     * The constant BEAN_NAME_SPRING_APPLICATION_CONTEXT_PROVIDER
+     */
+    public static final String BEAN_NAME_SPRING_APPLICATION_CONTEXT_PROVIDER = "springApplicationContextProvider";
+    /**
+     * The constant BEAN_NAME_FAILURE_HANDLER
+     */
+    public static final String BEAN_NAME_FAILURE_HANDLER = "failureHandler";
+    /**
+     * The constant SAGA_TRANS_NAME_PREFIX
+     */
+    public static final String SAGA_TRANS_NAME_PREFIX = "$Saga_";
 }

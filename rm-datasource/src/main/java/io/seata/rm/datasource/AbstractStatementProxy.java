@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource;
 
 import java.sql.Connection;
@@ -21,9 +20,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-
-import io.seata.common.exception.NotSupportYetException;
-import io.seata.core.context.RootContext;
 
 /**
  * The type Abstract statement proxy.
@@ -226,14 +222,11 @@ public abstract class AbstractStatementProxy<T extends Statement> implements Sta
     @Override
     public void clearBatch() throws SQLException {
         targetStatement.clearBatch();
-
+        targetSQL = null;
     }
 
     @Override
     public int[] executeBatch() throws SQLException {
-        if (RootContext.inGlobalTransaction()) {
-            throw new NotSupportYetException();
-        }
         return targetStatement.executeBatch();
     }
 

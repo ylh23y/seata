@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.tcc.api;
 
 import java.io.Serializable;
@@ -44,12 +43,12 @@ public class BusinessActionContext implements Serializable {
      * Instantiates a new Business action context.
      *
      * @param xid           the xid
-     * @param actionName    the action name
+     * @param branchId      the branch id
      * @param actionContext the action context
      */
-    public BusinessActionContext(String xid, String actionName, Map<String, Object> actionContext) {
+    public BusinessActionContext(String xid, String branchId, Map<String, Object> actionContext) {
         this.xid = xid;
-        this.actionName = actionName;
+        this.branchId = branchId;
         this.setActionContext(actionContext);
     }
 
@@ -69,7 +68,7 @@ public class BusinessActionContext implements Serializable {
      * @return the branch id
      */
     public long getBranchId() {
-        return branchId!=null?Long.valueOf(branchId):-1;
+        return branchId != null ? Long.parseLong(branchId) : -1;
     }
 
     /**

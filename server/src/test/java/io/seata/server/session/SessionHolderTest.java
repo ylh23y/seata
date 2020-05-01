@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,15 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.server.session;
 
 import io.seata.core.constants.ConfigurationKeys;
 import io.seata.core.store.StoreMode;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,12 +31,11 @@ import static io.seata.server.session.SessionHolder.ROOT_SESSION_MANAGER_NAME;
  * The type Session holder test.
  *
  * @author Wu
- * @date 2019 /3/6 The type Session holder test.
  */
 public class SessionHolderTest {
     private String pathname;
 
-    @Before
+    @BeforeEach
     public void before() {
         String sessionStorePath = SessionHolder.CONFIG.getConfig(ConfigurationKeys.STORE_FILE_DIR);
         //delete file previously created
@@ -50,14 +48,18 @@ public class SessionHolderTest {
         if (rootSessionFile.exists()) {
             rootSessionFile.delete();
         }
-        final String mode = StoreMode.FILE.toString();
+        final String mode = StoreMode.FILE.getName();
         SessionHolder.init(mode);
-        final File actual = new File(pathname);
-        Assert.assertTrue(actual.exists());
-        Assert.assertTrue(actual.isFile());
+        try {
+            final File actual = new File(pathname);
+            Assertions.assertTrue(actual.exists());
+            Assertions.assertTrue(actual.isFile());
+        } finally {
+            SessionHolder.destroy();
+        }
     }
 
-    @After
+    @AfterEach
     public void after() {
         final File actual = new File(pathname);
         if (actual.exists()) {

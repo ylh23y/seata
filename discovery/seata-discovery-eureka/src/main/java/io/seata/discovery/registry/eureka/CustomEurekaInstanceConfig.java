@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.netflix.appinfo.MyDataCenterInstanceConfig;
 
 /**
  * @author: rui_849217@163.com
- * @date: 2018/2/18
  * override MyDataCenterInstanceConfig for set value,
  * eg: instanceId \ipAddress \ applicationName...
  */
@@ -61,6 +60,11 @@ public class CustomEurekaInstanceConfig extends MyDataCenterInstanceConfig imple
             return super.getAppname();
         }
         return applicationName;
+    }
+
+    @Override
+    public String getHostName(boolean refresh) {
+        return this.getIpAddress();
     }
 
     public void setInstanceId(String instanceId) {

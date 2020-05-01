@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,8 +42,7 @@ public class CompressUtil {
             gos.finish();
             result = bos.toByteArray();
         } finally {
-            bos.close();
-            gos.close();
+            IOUtil.close(bos, gos);
         }
         return result;
     }
@@ -72,9 +71,7 @@ public class CompressUtil {
             bos.flush();
             result = bos.toByteArray();
         } finally {
-            bis.close();
-            iis.close();
-            bos.close();
+            IOUtil.close(bis, iis, bos);
         }
         return result;
     }
@@ -87,9 +84,7 @@ public class CompressUtil {
     public static boolean isCompressData(byte[] bytes) {
         if (bytes != null && bytes.length > 2) {
             int header = ((bytes[0] & 0xff)) | (bytes[1] & 0xff) << 8;
-            if (GZIPInputStream.GZIP_MAGIC == header) {
-                return true;
-            }
+            return GZIPInputStream.GZIP_MAGIC == header;
         }
         return false;
     }

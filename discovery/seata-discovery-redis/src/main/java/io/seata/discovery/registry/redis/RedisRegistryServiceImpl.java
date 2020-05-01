@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,13 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.discovery.registry.redis;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import io.seata.common.exception.ShouldNeverHappenException;
 import io.seata.common.thread.NamedThreadFactory;
@@ -34,8 +34,6 @@ import io.seata.common.util.NetUtil;
 import io.seata.common.util.StringUtils;
 import io.seata.config.Configuration;
 import io.seata.config.ConfigurationFactory;
-
-import io.seata.discovery.registry.RegistryService;
 import io.seata.discovery.registry.RegistryService;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.Logger;
@@ -49,7 +47,6 @@ import redis.clients.jedis.Protocol;
  * The type Redis registry service.
  *
  * @author kl @kailing.pub
- * @date 2019 /2/27
  */
 public class RedisRegistryServiceImpl implements RegistryService<RedisListener> {
 
@@ -65,17 +62,18 @@ public class RedisRegistryServiceImpl implements RegistryService<RedisListener> 
     private static final ConcurrentMap<String, Set<InetSocketAddress>> CLUSTER_ADDRESS_MAP = new ConcurrentHashMap<>();
     private static volatile RedisRegistryServiceImpl instance;
     private static volatile JedisPool jedisPool;
+
     private ExecutorService threadPoolExecutor = new ScheduledThreadPoolExecutor(1,
         new NamedThreadFactory("RedisRegistryService", 1));
 
     private RedisRegistryServiceImpl() {
-        Configuration seataConfig = ConfigurationFactory.FILE_INSTANCE;
+        Configuration seataConfig = ConfigurationFactory.CURRENT_FILE_INSTANCE;
         this.clusterName = seataConfig.getConfig(REDIS_FILEKEY_PREFIX + REGISTRY_CLUSTER_KEY, DEFAULT_CLUSTER);
         String password = seataConfig.getConfig(getRedisPasswordFileKey());
         String serverAddr = seataConfig.getConfig(getRedisAddrFileKey());
         String[] serverArr = serverAddr.split(":");
         String host = serverArr[0];
-        int port = Integer.valueOf(serverArr[1]);
+        int port = Integer.parseInt(serverArr[1]);
         int db = seataConfig.getInt(getRedisDbFileKey());
         GenericObjectPoolConfig redisConfig = new GenericObjectPoolConfig();
         redisConfig.setTestOnBorrow(seataConfig.getBoolean(REDIS_FILEKEY_PREFIX + "test.on.borrow", true));
@@ -98,7 +96,7 @@ public class RedisRegistryServiceImpl implements RegistryService<RedisListener> 
             redisConfig.setMaxTotal(maxTotal);
         }
         int maxWait = seataConfig.getInt(REDIS_FILEKEY_PREFIX + "max.wait",
-                seataConfig.getInt(REDIS_FILEKEY_PREFIX + "timeout", 0));
+            seataConfig.getInt(REDIS_FILEKEY_PREFIX + "timeout", 0));
         if (maxWait > 0) {
             redisConfig.setMaxWaitMillis(maxWait);
         }
@@ -143,12 +141,9 @@ public class RedisRegistryServiceImpl implements RegistryService<RedisListener> 
     public void register(InetSocketAddress address) {
         NetUtil.validAddress(address);
         String serverAddr = NetUtil.toStringAddress(address);
-        Jedis jedis = jedisPool.getResource();
-        try {
+        try (Jedis jedis = jedisPool.getResource()) {
             jedis.hset(getRedisRegistryKey(), serverAddr, ManagementFactory.getRuntimeMXBean().getName());
             jedis.publish(getRedisRegistryKey(), serverAddr + "-" + RedisListener.REGISTER);
-        } finally {
-            jedis.close();
         }
     }
 
@@ -156,12 +151,9 @@ public class RedisRegistryServiceImpl implements RegistryService<RedisListener> 
     public void unregister(InetSocketAddress address) {
         NetUtil.validAddress(address);
         String serverAddr = NetUtil.toStringAddress(address);
-        Jedis jedis = jedisPool.getResource();
-        try {
+        try (Jedis jedis = jedisPool.getResource()) {
             jedis.hdel(getRedisRegistryKey(), serverAddr);
             jedis.publish(getRedisRegistryKey(), serverAddr + "-" + RedisListener.UN_REGISTER);
-        } finally {
-            jedis.close();
         }
     }
 
@@ -170,19 +162,13 @@ public class RedisRegistryServiceImpl implements RegistryService<RedisListener> 
         String redisRegistryKey = REDIS_FILEKEY_PREFIX + cluster;
         LISTENER_SERVICE_MAP.putIfAbsent(cluster, new ArrayList<>());
         LISTENER_SERVICE_MAP.get(cluster).add(listener);
-        threadPoolExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Jedis jedis = jedisPool.getResource();
-                    try {
-                        jedis.subscribe(new NotifySub(LISTENER_SERVICE_MAP.get(cluster)), redisRegistryKey);
-                    } finally {
-                        jedis.close();
-                    }
-                } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
+        threadPoolExecutor.submit(() -> {
+            try {
+                try (Jedis jedis = jedisPool.getResource()) {
+                    jedis.subscribe(new NotifySub(LISTENER_SERVICE_MAP.get(cluster)), redisRegistryKey);
                 }
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
             }
         });
     }
@@ -193,47 +179,39 @@ public class RedisRegistryServiceImpl implements RegistryService<RedisListener> 
 
     @Override
     public List<InetSocketAddress> lookup(String key) {
-        Configuration config = ConfigurationFactory.getInstance();
-        String clusterName = config.getConfig(PREFIX_SERVICE_ROOT + CONFIG_SPLIT_CHAR + PREFIX_SERVICE_MAPPING + key);
+        String clusterName = getServiceGroup(key);
         if (null == clusterName) {
             return null;
         }
         if (!LISTENER_SERVICE_MAP.containsKey(clusterName)) {
-            Jedis jedis = jedisPool.getResource();
-            Map<String, String> instances = null;
-            try {
-                instances = jedis.hgetAll(getRedisRegistryKey());
-            } finally {
-                jedis.close();
+            String redisRegistryKey = REDIS_FILEKEY_PREFIX + clusterName;
+            Map<String, String> instances;
+            try (Jedis jedis = jedisPool.getResource()) {
+                instances = jedis.hgetAll(redisRegistryKey);
             }
-            if (null != instances) {
-                Set<InetSocketAddress> newAddressList = new HashSet<>();
-                for (Map.Entry<String, String> instance : instances.entrySet()) {
-                    String serverAddr = instance.getKey();
-                    newAddressList.add(NetUtil.toInetSocketAddress(serverAddr));
-                }
-                CLUSTER_ADDRESS_MAP.put(clusterName, newAddressList);
+            if (null != instances && !instances.isEmpty()) {
+                Set<InetSocketAddress> newAddressSet = instances.keySet().stream()
+                        .map(NetUtil::toInetSocketAddress)
+                        .collect(Collectors.toSet());
+                CLUSTER_ADDRESS_MAP.put(clusterName, newAddressSet);
             }
-            subscribe(clusterName, new RedisListener() {
-                @Override
-                public void onEvent(String msg) {
-                    String[] msgr = msg.split("-");
-                    String serverAddr = msgr[0];
-                    String eventType = msgr[1];
-                    switch (eventType) {
-                        case RedisListener.REGISTER:
-                            CLUSTER_ADDRESS_MAP.get(clusterName).add(NetUtil.toInetSocketAddress(serverAddr));
-                            break;
-                        case RedisListener.UN_REGISTER:
-                            CLUSTER_ADDRESS_MAP.get(clusterName).remove(NetUtil.toInetSocketAddress(serverAddr));
-                            break;
-                        default:
-                            throw new ShouldNeverHappenException("unknow redis msg:" + msg);
-                    }
+            subscribe(clusterName, msg -> {
+                String[] msgr = msg.split("-");
+                String serverAddr = msgr[0];
+                String eventType = msgr[1];
+                switch (eventType) {
+                    case RedisListener.REGISTER:
+                        CLUSTER_ADDRESS_MAP.get(clusterName).add(NetUtil.toInetSocketAddress(serverAddr));
+                        break;
+                    case RedisListener.UN_REGISTER:
+                        CLUSTER_ADDRESS_MAP.get(clusterName).remove(NetUtil.toInetSocketAddress(serverAddr));
+                        break;
+                    default:
+                        throw new ShouldNeverHappenException("unknown redis msg:" + msg);
                 }
             });
         }
-        return new ArrayList<>(CLUSTER_ADDRESS_MAP.get(clusterName));
+        return new ArrayList<>(CLUSTER_ADDRESS_MAP.getOrDefault(clusterName, Collections.emptySet()));
     }
 
     @Override
@@ -241,7 +219,7 @@ public class RedisRegistryServiceImpl implements RegistryService<RedisListener> 
         jedisPool.destroy();
     }
 
-    private class NotifySub extends JedisPubSub {
+    private static class NotifySub extends JedisPubSub {
 
         private final List<RedisListener> redisListeners;
 
@@ -277,4 +255,5 @@ public class RedisRegistryServiceImpl implements RegistryService<RedisListener> 
     private String getRedisDbFileKey() {
         return REDIS_FILEKEY_PREFIX + REDIS_DB;
     }
+
 }

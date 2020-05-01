@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import io.seata.discovery.registry.RegistryService;
 
 /**
  * @author xingfudeshi@gmail.com
- * @date 2019/04/12
  */
 @LoadLevel(name = "Consul", order = 1)
 public class ConsulRegistryProvider implements RegistryProvider {

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,34 +13,31 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.datasource.undo.mysql.keyword;
 
 import java.sql.Types;
 
-import com.alibaba.druid.util.JdbcConstants;
-import io.seata.rm.datasource.sql.SQLType;
-import io.seata.rm.datasource.sql.struct.Field;
-import io.seata.rm.datasource.sql.struct.KeyType;
-import io.seata.rm.datasource.sql.struct.Row;
-import io.seata.rm.datasource.sql.struct.TableRecords;
 import io.seata.rm.datasource.undo.KeywordChecker;
 import io.seata.rm.datasource.undo.KeywordCheckerFactory;
 import io.seata.rm.datasource.undo.SQLUndoLog;
-import io.seata.rm.datasource.undo.UndoExecutorTest;
 import io.seata.rm.datasource.undo.mysql.MySQLUndoDeleteExecutor;
 import io.seata.rm.datasource.undo.mysql.MySQLUndoInsertExecutor;
 import io.seata.rm.datasource.undo.mysql.MySQLUndoUpdateExecutor;
 
 import io.seata.rm.datasource.undo.UndoExecutorTest;
-import org.junit.Assert;
-import org.junit.Test;
+import io.seata.sqlparser.SQLType;
+import io.seata.rm.datasource.sql.struct.Field;
+import io.seata.rm.datasource.sql.struct.KeyType;
+import io.seata.rm.datasource.sql.struct.Row;
+import io.seata.rm.datasource.sql.struct.TableRecords;
+import io.seata.sqlparser.util.JdbcConstants;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * The type My sql keyword checker test.
  *
  * @author Wu
- * @date 2019 /3/5 The type MySQL keyword checker test.
  */
 public class MySQLKeywordCheckerTest {
 
@@ -50,8 +47,7 @@ public class MySQLKeywordCheckerTest {
     @Test
     public void testCheck() {
         KeywordChecker keywordChecker = KeywordCheckerFactory.getKeywordChecker(JdbcConstants.MYSQL);
-        Assert.assertTrue(keywordChecker.check("desc"));
-
+        Assertions.assertTrue(keywordChecker.check("desc"));
     }
 
     /**
@@ -60,7 +56,7 @@ public class MySQLKeywordCheckerTest {
     @Test
     public void testCheckAndReplace() {
         KeywordChecker keywordChecker = KeywordCheckerFactory.getKeywordChecker(JdbcConstants.MYSQL);
-        Assert.assertEquals("`desc`", keywordChecker.checkAndReplace("desc"));
+        Assertions.assertEquals("`desc`", keywordChecker.checkAndReplace("desc"));
 
     }
 
@@ -70,31 +66,25 @@ public class MySQLKeywordCheckerTest {
     @Test
     public void testUpdateKeywordCheck() {
         SQLUndoLog sqlUndoLog = new SQLUndoLog();
-        sqlUndoLog.setTableName("lock");
+        sqlUndoLog.setTableName("`lock`");
         sqlUndoLog.setSqlType(SQLType.UPDATE);
 
-        TableRecords beforeImage = new TableRecords(new UndoExecutorTest.MockTableMeta("product", "id"));
+        TableRecords beforeImage = new TableRecords(new UndoExecutorTest.MockTableMeta("product", "key"));
 
         Row beforeRow = new Row();
 
         Field pkField = new Field();
-        pkField.setKeyType(KeyType.PrimaryKey);
-        pkField.setName("id");
+        pkField.setKeyType(KeyType.PRIMARY_KEY);
+        pkField.setName("`key`");
         pkField.setType(Types.INTEGER);
         pkField.setValue(213);
         beforeRow.add(pkField);
 
         Field name = new Field();
-        name.setName("desc");
+        name.setName("`desc`");
         name.setType(Types.VARCHAR);
         name.setValue("SEATA");
         beforeRow.add(name);
-
-        Field nameOrder = new Field();
-        nameOrder.setName("order");
-        nameOrder.setType(Types.VARCHAR);
-        nameOrder.setValue("2");
-        beforeRow.add(nameOrder);
 
         Field since = new Field();
         since.setName("since");
@@ -104,19 +94,19 @@ public class MySQLKeywordCheckerTest {
 
         beforeImage.add(beforeRow);
 
-        TableRecords afterImage = new TableRecords(new UndoExecutorTest.MockTableMeta("product", "id"));
+        TableRecords afterImage = new TableRecords(new UndoExecutorTest.MockTableMeta("product", "key"));
 
         Row afterRow = new Row();
 
         Field pkField1 = new Field();
-        pkField1.setKeyType(KeyType.PrimaryKey);
-        pkField1.setName("id");
+        pkField1.setKeyType(KeyType.PRIMARY_KEY);
+        pkField1.setName("`key`");
         pkField1.setType(Types.INTEGER);
-        pkField1.setValue(213);
+        pkField1.setValue(214);
         afterRow.add(pkField1);
 
         Field name1 = new Field();
-        name1.setName("name");
+        name1.setName("`desc`");
         name1.setType(Types.VARCHAR);
         name1.setValue("GTS");
         afterRow.add(name1);
@@ -134,7 +124,7 @@ public class MySQLKeywordCheckerTest {
 
         MySQLUndoUpdateExecutorExtension mySQLUndoUpdateExecutor = new MySQLUndoUpdateExecutorExtension(sqlUndoLog);
 
-        Assert.assertEquals("UPDATE `lock` SET `desc` = ?, `order` = ?, since = ? WHERE id = ?",
+        Assertions.assertEquals("UPDATE `lock` SET `desc` = ?, since = ? WHERE `key` = ?",
             mySQLUndoUpdateExecutor.getSql());
 
     }
@@ -165,30 +155,30 @@ public class MySQLKeywordCheckerTest {
     @Test
     public void testInsertKeywordCheck() {
         SQLUndoLog sqlUndoLog = new SQLUndoLog();
-        sqlUndoLog.setTableName("lock");
+        sqlUndoLog.setTableName("`lock`");
         sqlUndoLog.setSqlType(SQLType.INSERT);
 
-        TableRecords beforeImage = TableRecords.empty(new UndoExecutorTest.MockTableMeta("product", "id"));
+        TableRecords beforeImage = TableRecords.empty(new UndoExecutorTest.MockTableMeta("product", "key"));
 
-        TableRecords afterImage = new TableRecords(new UndoExecutorTest.MockTableMeta("product", "id"));
+        TableRecords afterImage = new TableRecords(new UndoExecutorTest.MockTableMeta("product", "key"));
 
         Row afterRow1 = new Row();
 
         Field pkField = new Field();
-        pkField.setKeyType(KeyType.PrimaryKey);
-        pkField.setName("id");
+        pkField.setKeyType(KeyType.PRIMARY_KEY);
+        pkField.setName("`key`");
         pkField.setType(Types.INTEGER);
         pkField.setValue(213);
         afterRow1.add(pkField);
 
         Field name = new Field();
-        name.setName("desc");
+        name.setName("`desc`");
         name.setType(Types.VARCHAR);
         name.setValue("SEATA");
         afterRow1.add(name);
 
         Field since = new Field();
-        since.setName("order");
+        since.setName("since");
         since.setType(Types.VARCHAR);
         since.setValue("2014");
         afterRow1.add(since);
@@ -196,14 +186,14 @@ public class MySQLKeywordCheckerTest {
         Row afterRow = new Row();
 
         Field pkField1 = new Field();
-        pkField1.setKeyType(KeyType.PrimaryKey);
-        pkField1.setName("id");
+        pkField1.setKeyType(KeyType.PRIMARY_KEY);
+        pkField1.setName("`key`");
         pkField1.setType(Types.INTEGER);
         pkField1.setValue(214);
         afterRow.add(pkField1);
 
         Field name1 = new Field();
-        name1.setName("name");
+        name1.setName("`desc`");
         name1.setType(Types.VARCHAR);
         name1.setValue("GTS");
         afterRow.add(name1);
@@ -222,7 +212,7 @@ public class MySQLKeywordCheckerTest {
 
         MySQLUndoInsertExecutorExtension mySQLUndoInsertExecutor = new MySQLUndoInsertExecutorExtension(sqlUndoLog);
 
-        Assert.assertEquals("DELETE FROM `lock` WHERE id = ?", mySQLUndoInsertExecutor.getSql());
+        Assertions.assertEquals("DELETE FROM `lock` WHERE `key` = ?", mySQLUndoInsertExecutor.getSql());
 
     }
 
@@ -252,7 +242,7 @@ public class MySQLKeywordCheckerTest {
     @Test
     public void testDeleteKeywordCheck() {
         SQLUndoLog sqlUndoLog = new SQLUndoLog();
-        sqlUndoLog.setTableName("lock");
+        sqlUndoLog.setTableName("`lock`");
         sqlUndoLog.setSqlType(SQLType.DELETE);
 
         TableRecords afterImage = TableRecords.empty(new UndoExecutorTest.MockTableMeta("product", "id"));
@@ -262,20 +252,20 @@ public class MySQLKeywordCheckerTest {
         Row afterRow1 = new Row();
 
         Field pkField = new Field();
-        pkField.setKeyType(KeyType.PrimaryKey);
-        pkField.setName("id");
+        pkField.setKeyType(KeyType.PRIMARY_KEY);
+        pkField.setName("`key`");
         pkField.setType(Types.INTEGER);
         pkField.setValue(213);
         afterRow1.add(pkField);
 
         Field name = new Field();
-        name.setName("desc");
+        name.setName("`desc`");
         name.setType(Types.VARCHAR);
         name.setValue("SEATA");
         afterRow1.add(name);
 
         Field since = new Field();
-        since.setName("order");
+        since.setName("since");
         since.setType(Types.VARCHAR);
         since.setValue("2014");
         afterRow1.add(since);
@@ -283,14 +273,14 @@ public class MySQLKeywordCheckerTest {
         Row afterRow = new Row();
 
         Field pkField1 = new Field();
-        pkField1.setKeyType(KeyType.PrimaryKey);
-        pkField1.setName("id");
+        pkField1.setKeyType(KeyType.PRIMARY_KEY);
+        pkField1.setName("`key`");
         pkField1.setType(Types.INTEGER);
         pkField1.setValue(214);
         afterRow.add(pkField1);
 
         Field name1 = new Field();
-        name1.setName("name");
+        name1.setName("`desc`");
         name1.setType(Types.VARCHAR);
         name1.setValue("GTS");
         afterRow.add(name1);
@@ -309,7 +299,7 @@ public class MySQLKeywordCheckerTest {
 
         MySQLUndoDeleteExecutorExtension mySQLUndoDeleteExecutor = new MySQLUndoDeleteExecutorExtension(sqlUndoLog);
 
-        Assert.assertEquals("INSERT INTO `lock`(`desc`, `order`, id) VALUES (?, ?, ?)",
+        Assertions.assertEquals("INSERT INTO `lock` (`desc`, since, `key`) VALUES (?, ?, ?)",
             mySQLUndoDeleteExecutor.getSql());
 
     }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import io.seata.core.model.BranchStatus;
 import io.seata.core.protocol.ResultCode;
 import io.seata.core.protocol.transaction.BranchCommitResponse;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * The type Branch commit response test.
@@ -31,7 +31,6 @@ import org.junit.Test;
 public class BranchCommitResponseTest {
     /**
      * To string test.
-     *
      */
     @Test
     public void toStringTest() {
@@ -41,9 +40,10 @@ public class BranchCommitResponseTest {
         branchCommitResponse.setBranchStatus(BranchStatus.PhaseOne_Done);
         branchCommitResponse.setResultCode(ResultCode.Success);
         branchCommitResponse.setMsg("");
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "xid=127.0.0.1:8091:123456,branchId=2345678,branchStatus=PhaseOne_Done,result code =Success,getMsg =",
             branchCommitResponse.toString());
 
     }
+
 }

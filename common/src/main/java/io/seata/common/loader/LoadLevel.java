@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.common.loader;
 
 import java.lang.annotation.Documented;
@@ -25,8 +24,7 @@ import java.lang.annotation.Target;
 /**
  * The interface Load level.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2018 /10/10
+ * @author slievrly
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -44,5 +42,11 @@ public @interface LoadLevel {
      *
      * @return the int
      */
-    int order();
+    int order() default 0;
+
+    /**
+     * Scope enum.
+     * @return
+     */
+    Scope scope() default Scope.SINGLETON;
 }

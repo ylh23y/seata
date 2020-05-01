@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.discovery.loadbalance;
 
 import java.util.List;
@@ -24,8 +23,7 @@ import io.seata.common.loader.LoadLevel;
 /**
  * The type Round robin load balance.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2019 /02/12
+ * @author slievrly
  */
 @LoadLevel(name = "RoundRobinLoadBalance", order = 1)
 public class RoundRobinLoadBalance extends AbstractLoadBalance {
@@ -41,7 +39,7 @@ public class RoundRobinLoadBalance extends AbstractLoadBalance {
     private int getPositiveSequence() {
         for (; ; ) {
             int current = sequence.get();
-            int next = (current >= Integer.MAX_VALUE ? 0 : current + 1);
+            int next = current >= Integer.MAX_VALUE ? 0 : current + 1;
             if (sequence.compareAndSet(current, next)) {
                 return current;
             }

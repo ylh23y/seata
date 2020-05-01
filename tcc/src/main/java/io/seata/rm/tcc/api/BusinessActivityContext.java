@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.rm.tcc.api;
 
 import java.io.Serializable;
@@ -30,9 +29,9 @@ import io.seata.common.Constants;
 public class BusinessActivityContext implements Serializable {
 
     /**  */
-    private static final long   serialVersionUID = 6539226288677737992L;
+    private static final long serialVersionUID = 6539226288677737992L;
 
-    private Map<String, Object> context = new HashMap<String, Object>();
+    private Map<String, Object> context = new HashMap<>();
 
     /**
      * Instantiates a new Business activity context.
@@ -65,7 +64,7 @@ public class BusinessActivityContext implements Serializable {
      * @return the long
      */
     public Long fetchStartTime() {
-        return (Long) context.get(Constants.START_TIME);
+        return (Long)context.get(Constants.START_TIME);
     }
 
     /**
@@ -74,7 +73,7 @@ public class BusinessActivityContext implements Serializable {
      * @param key the key
      * @return the object
      */
-    public Object getContext(String key){
+    public Object getContext(String key) {
         return context.get(key);
     }
 

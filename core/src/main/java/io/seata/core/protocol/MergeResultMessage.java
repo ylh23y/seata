@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,28 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol;
 
-import java.nio.ByteBuffer;
-
-import io.netty.buffer.ByteBuf;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The type Merge result message.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2018 /10/10
+ * @author slievrly
  */
 public class MergeResultMessage extends AbstractMessage implements MergeMessage {
-    private static final long serialVersionUID = -7719219648774528552L;
+
     /**
      * The Msgs.
      */
     public AbstractResultMessage[] msgs;
-    private static final Logger LOGGER = LoggerFactory.getLogger(MergeResultMessage.class);
 
     /**
      * Get msgs abstract result message [ ].
@@ -56,67 +48,15 @@ public class MergeResultMessage extends AbstractMessage implements MergeMessage 
 
     @Override
     public short getTypeCode() {
-        return TYPE_SEATA_MERGE_RESULT;
-    }
-
-    @Override
-    public byte[] encode() {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(msgs.length * 1024);
-        byteBuffer.putShort((short)msgs.length);
-        for (AbstractMessage msg : msgs) {
-            byte[] data = msg.encode();
-            byteBuffer.putShort(msg.getTypeCode());
-            byteBuffer.put(data);
-        }
-
-        byteBuffer.flip();
-        int length = byteBuffer.limit();
-        byte[] content = new byte[length + 4];
-        intToBytes(length, content, 0);
-        byteBuffer.get(content, 4, length);
-        if (msgs.length > 20) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("msg in one services merge packet:" + msgs.length
-                    + ",buffer size:" + content.length);
-            }
-        }
-        return content;
-    }
-
-    @Override
-    public boolean decode(ByteBuf in) {
-        int i = in.readableBytes();
-        if (i < 4) { return false; }
-
-        i -= 4;
-        int length = in.readInt();
-        if (i < length) { return false; }
-        byte[] buffer = new byte[length];
-        in.readBytes(buffer);
-        ByteBuffer byteBuffer = ByteBuffer.wrap(buffer);
-        decode(byteBuffer);
-        return true;
-    }
-
-    /**
-     * Decode.
-     *
-     * @param byteBuffer the byte buffer
-     */
-    public void decode(ByteBuffer byteBuffer) {
-        short msgNum = byteBuffer.getShort();
-        msgs = new AbstractResultMessage[msgNum];
-        for (int idx = 0; idx < msgNum; idx++) {
-            short typeCode = byteBuffer.getShort();
-            MergedMessage message = getMergeResponseInstanceByCode(typeCode);
-            message.decode(byteBuffer);
-            msgs[idx] = (AbstractResultMessage)message;
-        }
+        return MessageType.TYPE_SEATA_MERGE_RESULT;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("MergeResultMessage ");
+        if (msgs == null) {
+            return sb.toString();
+        }
         for (AbstractMessage msg : msgs) { sb.append(msg.toString()).append("\n"); }
         return sb.toString();
     }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 1999-2018 Alibaba Group Holding Ltd.
+ *  Copyright 1999-2019 Seata.io Group.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package io.seata.core.protocol.transaction;
 
-import java.nio.ByteBuffer;
 
 import io.seata.core.model.GlobalStatus;
 
@@ -51,18 +49,6 @@ public abstract class AbstractGlobalEndResponse extends AbstractTransactionRespo
     }
 
     @Override
-    protected void doEncode() {
-        super.doEncode();
-        byteBuffer.put((byte)globalStatus.getCode());
-    }
-
-    @Override
-    public void decode(ByteBuffer byteBuffer) {
-        super.decode(byteBuffer);
-        globalStatus = GlobalStatus.get(byteBuffer.get());
-    }
-
-    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("globalStatus=");
@@ -76,4 +62,5 @@ public abstract class AbstractGlobalEndResponse extends AbstractTransactionRespo
 
         return result.toString();
     }
+
 }
